@@ -21,7 +21,7 @@ import { uid } from '../utils/id';
 import { todayISO } from '../utils/dates';
 import { STATUS_LABELS } from '../utils/compliance';
 
-const STORAGE_KEY = 'psv-dashboard-data-v3';
+const STORAGE_KEY = 'psv-dashboard-data-v4';
 
 export type SyncStatus = 'local' | 'loading' | 'saving' | 'saved' | 'error';
 
