@@ -4,7 +4,6 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
   type ReactNode,
 } from 'react';
@@ -21,8 +20,6 @@ import { seedData } from '../data/mockData';
 import { uid } from '../utils/id';
 import { todayISO } from '../utils/dates';
 import { STATUS_LABELS } from '../utils/compliance';
-import { isSupabaseConfigured, STATE_ROW_ID, STATE_TABLE, supabase } from '../lib/supabase';
-import { useAuth } from '../auth/AuthContext';
 
 const STORAGE_KEY = 'psv-dashboard-data-v3';
 
@@ -45,7 +42,6 @@ function loadData(): AppData {
 
 interface PSVContextValue {
   data: AppData;
-  /** Cloud sync state ('local' when running without Supabase). */
   syncStatus: SyncStatus;
 
   // selectors
@@ -150,106 +146,15 @@ function enforceSingleInstalled(
 }
 
 export function PSVProvider({ children }: { children: ReactNode }) {
-  const { authed } = useAuth();
-  const cloud = isSupabaseConfigured;
+  const [data, setData] = useState<AppData>(() => loadData());
 
-  const [data, setData] = useState<AppData>(() =>
-    cloud ? structuredClone(EMPTY_DATA) : loadData(),
-  );
-  // In cloud mode, true once the initial shared state has been loaded.
-  const [synced, setSynced] = useState(!cloud);
-  const [syncStatus, setSyncStatus] = useState<SyncStatus>(cloud ? 'loading' : 'local');
-  const applyingRemote = useRef(false);
-  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // --- Local mode: persist to localStorage ---------------------------------
   useEffect(() => {
-    if (cloud) return;
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch {
       // storage may be unavailable; non-fatal
     }
-  }, [data, cloud]);
-
-  // --- Cloud mode: load the shared state + subscribe to live changes -------
-  useEffect(() => {
-    if (!cloud || !authed || !supabase) return;
-    const sb = supabase;
-    let active = true;
-    setSyncStatus('loading');
-
-    (async () => {
-      const { data: row, error } = await sb
-        .from(STATE_TABLE)
-        .select('data')
-        .eq('id', STATE_ROW_ID)
-        .maybeSingle();
-      if (!active) return;
-
-      if (!error && row?.data) {
-        applyingRemote.current = true;
-        setData(row.data as AppData);
-      } else if (!error) {
-        // First run: seed the shared table with the sample data.
-        const seed = structuredClone(seedData);
-        await sb
-          .from(STATE_TABLE)
-          .upsert({ id: STATE_ROW_ID, data: seed, updated_at: new Date().toISOString() });
-        applyingRemote.current = true;
-        setData(seed);
-      }
-      setSynced(true);
-      setSyncStatus(error ? 'error' : 'saved');
-    })();
-
-    const channel = sb
-      .channel('app_state_sync')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: STATE_TABLE, filter: `id=eq.${STATE_ROW_ID}` },
-        (payload) => {
-          const incoming = (payload.new as { data?: AppData } | null)?.data;
-          if (incoming) {
-            applyingRemote.current = true;
-            setData(incoming);
-            setSyncStatus('saved');
-          }
-        },
-      )
-      .subscribe();
-
-    return () => {
-      active = false;
-      sb.removeChannel(channel);
-    };
-  }, [cloud, authed]);
-
-  // --- Cloud mode: save local edits back to the shared state (debounced) ---
-  useEffect(() => {
-    if (!cloud || !authed || !synced || !supabase) return;
-    if (applyingRemote.current) {
-      // This change came from a remote update — don't echo it back.
-      applyingRemote.current = false;
-      return;
-    }
-    const sb = supabase;
-    setSyncStatus('saving');
-    if (saveTimer.current) clearTimeout(saveTimer.current);
-    const snapshot = data;
-    saveTimer.current = setTimeout(() => {
-      sb.from(STATE_TABLE)
-        .upsert({
-          id: STATE_ROW_ID,
-          data: snapshot,
-          updated_at: new Date().toISOString(),
-        })
-        .then(({ error }) => setSyncStatus(error ? 'error' : 'saved'));
-    }, 400);
-    return () => {
-      if (saveTimer.current) clearTimeout(saveTimer.current);
-    };
-  }, [data, cloud, authed, synced]);
+  }, [data]);
 
   const getEquipment = useCallback(
     (id: string) => data.equipment.find((e) => e.id === id),
@@ -539,7 +444,7 @@ export function PSVProvider({ children }: { children: ReactNode }) {
   const value = useMemo<PSVContextValue>(
     () => ({
       data,
-      syncStatus,
+      syncStatus: 'local',
       getEquipment,
       getLocation,
       getPSV,
@@ -566,7 +471,6 @@ export function PSVProvider({ children }: { children: ReactNode }) {
     }),
     [
       data,
-      syncStatus,
       getEquipment,
       getLocation,
       getPSV,
