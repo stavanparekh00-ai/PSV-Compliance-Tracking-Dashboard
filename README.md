@@ -1,39 +1,37 @@
-# Boiler Inspection Management System
+# PSV Tracking Dashboard
 
-A web application for maintenance teams to track industrial boilers and their recurring safety inspections — from scheduling through repairs to final certification. Built to support both individual use and shared, real-time team collaboration.
+A Pressure Safety Valve (PSV) compliance tracking dashboard built for the Texas A&M University – Utilities & Energy Services department, designed to track every relief valve across the site through its full lifecycle — installation, service, inventory, and 3-year recertification.
 
 ## Overview
 
-The system gives maintenance teams a single source of truth for the status of every boiler in their fleet — what's due for inspection, what's currently being inspected, what's failed and needs repair, and what's fully certified. Every action is logged, so the full inspection and repair history of any unit is always available.
+The dashboard organizes the entire valve fleet by Site → Equipment → Location → PSV, giving the team a clear, hierarchical view of compliance status at every level. Recertification due dates are calculated automatically from each valve's last install date, with built-in alerts for valves approaching or past their due date — so nothing slips through the cracks.
 
 ## Features
 
-- **Fleet Overview** — Each boiler is displayed as a card showing name, type, capacity, location, and a color-coded status indicator with a five-stage tracker showing exactly where it sits in the inspection workflow:
-  - 🔴 Red — Failed last inspection, repairs required
-  - 🟠 Amber — Inspection in progress
-  - 🟢 Green — Passed, all steps complete
-  - ⚪ Gray — No inspection started
+- **Site-Wide KPIs** — Total PSVs, installed units, inventory, units out for service, due-soon and overdue counts, and an overall compliance rate, visible at a glance on the dashboard.
 
-  Overdue and upcoming inspections are flagged automatically.
+- **Equipment & Location Drill-Down** — Each equipment card expands into its locations, and each location shows the PSVs assigned to it with live status and due dates, down to the individual serial number.
 
-- **Detail View** — Editable technical specifications alongside the active inspection workflow, plus a full history tab showing every past inspection with timelines, notes, and repair logs.
+- **Compliance Status Tracking**
+  - 🟢 Compliant — recertification current
+  - 🟠 Due Soon — within 90 days of recertification
+  - 🔴 Overdue — past its recertification date
+  - ⚪ In Inventory / Out for Service — tracked but not counted against live compliance until installed
 
-- **Inspection Workflow** — Inspections are logged with date, notes, and outcome. A pass moves the unit through a five-step certification process (Inspection Done → Invoice Received → PO Issued → Certificate Received → Certificate Installed), each step timestamped automatically. A fail opens a repair workflow that tracks repairs through to re-inspection.
+- **Full PSV Datasheets** — Make, model, type, set pressure, capacity, orifice size, materials, National Board number, and more for every valve.
 
-- **Dashboard Summary** — At-a-glance metrics: total boilers, active inspections, failed units, and average inspection duration, alongside a schedule of upcoming/overdue inspections and units currently under repair.
+- **History & Audit Trail** — Every install, service, and inventory status change is logged with effective dates, fully editable to correct mistakes, and viewable as a timeline on each valve's detail page.
 
-- **Audit Trail** — Every edit to specs, inspection results, or workflow status is recorded with before/after values and is fully searchable.
-
-- **Data Export** — Per-boiler and fleet-wide CSV reports for offline reporting and recordkeeping.
-
-- **Real-Time Multi-User Sync** — Built on Supabase, allowing multiple team members to view and update the same live data simultaneously, with authentication to control access.
+- **Data Import/Export** — Bulk import via Excel/CSV template, full JSON backup and restore, and multi-sheet Excel exports (PSV register, compliance summary, due/overdue list, and history log) for offline reporting.
 
 ## Tech Stack
 
 | Layer | Technology |
 |-------|------------|
 | Frontend | React 18, TypeScript, Vite |
-| Styling | Tailwind CSS |
+| Styling | Tailwind CSS (Texas A&M maroon theme) |
+| Routing | React Router |
+| Icons | lucide-react |
 | Backend | Supabase (Auth + real-time database) |
 
 ## Live Demo
