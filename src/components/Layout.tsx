@@ -1,12 +1,10 @@
 import { useState } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { Database, Eraser, Gauge, RotateCcw, ShieldCheck, Upload } from 'lucide-react';
-import { usePSV } from '../store/PSVContext';
+import { Database, Gauge, ShieldCheck, Upload } from 'lucide-react';
 import { ImportModal } from './forms/ImportModal';
 import { SyncIndicator } from './SyncIndicator';
 
 export function Layout() {
-  const { resetToSeed, clearAll } = usePSV();
   const location = useLocation();
   const isHome = location.pathname === '/';
   const [menuOpen, setMenuOpen] = useState(false);
@@ -58,38 +56,6 @@ export function Layout() {
                     >
                       <Upload className="h-4 w-4 text-slate-400" />
                       Import data…
-                    </button>
-                    <button
-                      onClick={() => {
-                        setMenuOpen(false);
-                        if (
-                          confirm(
-                            'Reset all data back to the original sample dataset? Any changes you made will be lost.',
-                          )
-                        ) {
-                          resetToSeed();
-                        }
-                      }}
-                      className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm hover:bg-slate-50"
-                    >
-                      <RotateCcw className="h-4 w-4 text-slate-400" />
-                      Reset to sample data
-                    </button>
-                    <button
-                      onClick={() => {
-                        setMenuOpen(false);
-                        if (
-                          confirm(
-                            'Clear ALL data so you can enter your own? This removes every equipment, location, and PSV and cannot be undone.',
-                          )
-                        ) {
-                          clearAll();
-                        }
-                      }}
-                      className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50"
-                    >
-                      <Eraser className="h-4 w-4" />
-                      Clear all data
                     </button>
                   </div>
                 </>

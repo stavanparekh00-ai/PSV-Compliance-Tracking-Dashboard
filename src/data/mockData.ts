@@ -11,8 +11,8 @@ import type {
 // ---------------------------------------------------------------------------
 // Seed data for the dashboard. This is placeholder data modelled on the kind of
 // equipment a campus Utilities & Energy Services group operates (boilers, hot
-// water heating boilers, HRSGs). Replace the arrays below — or use the in-app
-// "Clear all data" option and enter your own — when real data is available.
+// water heating boilers, HRSGs). Used only as a fallback when no saved data
+// exists in the browser yet.
 // ---------------------------------------------------------------------------
 
 let evtCounter = 0;
