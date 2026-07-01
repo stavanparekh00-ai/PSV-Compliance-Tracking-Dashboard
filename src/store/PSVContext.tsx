@@ -78,8 +78,6 @@ interface PSVContextValue {
   deleteHistoryEvent: (id: string, eventId: string) => void;
 
   // bulk
-  resetToSeed: () => void;
-  clearAll: () => void;
   replaceData: (data: AppData) => void;
 }
 
@@ -103,8 +101,6 @@ export interface NewEventInput {
 }
 
 const PSVContext = createContext<PSVContextValue | null>(null);
-
-const EMPTY_DATA: AppData = { equipment: [], locations: [], psvs: [] };
 
 /**
  * Enforces "only one installed PSV per location": when `keepId` is installed at
@@ -437,8 +433,6 @@ export function PSVProvider({ children }: { children: ReactNode }) {
     }));
   }, []);
 
-  const resetToSeed = useCallback(() => setData(structuredClone(seedData)), []);
-  const clearAll = useCallback(() => setData(structuredClone(EMPTY_DATA)), []);
   const replaceData = useCallback((d: AppData) => setData(structuredClone(d)), []);
 
   const value = useMemo<PSVContextValue>(
@@ -465,8 +459,6 @@ export function PSVProvider({ children }: { children: ReactNode }) {
       addHistoryEvent,
       updateHistoryEvent,
       deleteHistoryEvent,
-      resetToSeed,
-      clearAll,
       replaceData,
     }),
     [
@@ -491,8 +483,6 @@ export function PSVProvider({ children }: { children: ReactNode }) {
       addHistoryEvent,
       updateHistoryEvent,
       deleteHistoryEvent,
-      resetToSeed,
-      clearAll,
       replaceData,
     ],
   );
