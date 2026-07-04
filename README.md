@@ -36,4 +36,4 @@ The dashboard organizes the entire valve fleet by Site → Equipment → Locatio
 
 ## Live Demo
 
-psv-compliance-tracking-dashboard.vercel.app
+[Live Dashboard](psv-compliance-tracking-dashboard.vercel.app)
